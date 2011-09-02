@@ -1,0 +1,11 @@
+diff -up logrotate-3.7.8/examples/logrotate.cron.devnull logrotate-3.7.8/examples/logrotate.cron
+--- logrotate-3.7.8/examples/logrotate.cron.devnull	2009-09-17 11:29:19.000000000 +0200
++++ logrotate-3.7.8/examples/logrotate.cron	2009-09-17 11:29:40.000000000 +0200
+@@ -1,6 +1,6 @@
+ #!/bin/sh
+ 
+-/usr/sbin/logrotate /etc/logrotate.conf
++/usr/sbin/logrotate /etc/logrotate.conf >/dev/null 2>&1
+ EXITVALUE=$?
+ if [ $EXITVALUE != 0 ]; then
+     /usr/bin/logger -t logrotate "ALERT exited abnormally with [$EXITVALUE]"

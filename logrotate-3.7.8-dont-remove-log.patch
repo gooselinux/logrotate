@@ -1,0 +1,16 @@
+Index: logrotate.c
+===================================================================
+--- logrotate.c	(revision 276)
++++ logrotate.c	(working copy)
+@@ -848,9 +848,10 @@
+ 				    mailLogWrapper(mailFilename,
+ 						   mailCommand, logNum,
+ 						   log);
+-			    if (!hasErrors)
++			    if (!hasErrors) {
+ 				message(MESS_DEBUG, "removing %s\n", mailFilename);
+ 				hasErrors = removeLogFile(mailFilename, log);
++				}
+ 			}
+ 			mail_out = i;
+ 		    }

@@ -1,0 +1,74 @@
+diff -up logrotate-3.7.8/config.c.missingok logrotate-3.7.8/config.c
+--- logrotate-3.7.8/config.c.missingok	2010-04-06 11:35:11.000000000 +0200
++++ logrotate-3.7.8/config.c	2010-04-06 11:43:37.000000000 +0200
+@@ -41,6 +41,7 @@ static int defTabooCount = sizeof(defTab
+ /* I shouldn't use globals here :-( */
+ static char **tabooExts = NULL;
+ int tabooCount = 0;
++static int glob_errno = 0;
+ 
+ static int readConfigFile(const char *configFile, struct logInfo *defConfig);
+ static int globerr(const char *pathname, int theerr);
+@@ -461,8 +462,7 @@ int readAllConfigPaths(const char **path
+ 
+ static int globerr(const char *pathname, int theerr)
+ {
+-    message(MESS_ERROR, "error accessing %s: %s\n", pathname,
+-	    strerror(theerr));
++    glob_errno = theerr;
+ 
+     /* We want the glob operation to abort on error, so return 1 */
+     return 1;
+@@ -501,6 +501,7 @@ static int readConfigFile(const char *co
+     int logerror = 0;
+     struct logInfo *log;
+ 	static unsigned recursion_depth = 0U;
++	char *globerr_msg = NULL;
+ 
+     /* FIXME: createOwner and createGroup probably shouldn't be fixed
+        length arrays -- of course, if we aren't run setuid it doesn't
+@@ -1346,16 +1347,25 @@ static int readConfigFile(const char *co
+ 	    newlog->files = NULL;
+ 	    newlog->numFiles = 0;
+ 	    for (argNum = 0; argNum < argc && logerror != 1; argNum++) {
++		if (globerr_msg) {
++		    free(globerr_msg);
++		    globerr_msg = NULL;
++		}
++			
+ 		rc = glob(argv[argNum], GLOB_NOCHECK, globerr,
+ 			  &globResult);
+ 		if (rc == GLOB_ABORTED) {
+ 		    if (newlog->flags & LOG_FLAG_MISSINGOK)
+ 			continue;
+ 
+-		    message(MESS_ERROR, "%s:%d glob failed for %s\n",
+-			    configFile, lineNum, argv[argNum]);
+-		    logerror = 1;
+-		    break;
++          /* We don't yet know whether this stanza has "missingok"
++		     * set, so store the error message for later. */
++		    rc = asprintf(&globerr_msg, "%s:%d glob failed for %s: %s\n",
++			    configFile, lineNum, argv[argNum], strerror(glob_errno));
++		    if (rc == -1)
++			globerr_msg = NULL;
++		    
++		    globResult.gl_pathc = 0;
+ 		}
+ 
+ 		newlog->files =
+@@ -1407,6 +1417,14 @@ duperror:
+ 			lineNum);
+ 		return 1;
+ 	    }
++	if (globerr_msg) {
++		if (!(newlog->flags & LOG_FLAG_MISSINGOK))
++		    message(MESS_ERROR, globerr_msg);
++		free(globerr_msg);
++		globerr_msg = NULL;
++		if (!(newlog->flags & LOG_FLAG_MISSINGOK))
++		    return 1;
++	    }
+ 
+ 	    if (newlog->oldDir) {
+ 		for (i = 0; i < newlog->numFiles; i++) {

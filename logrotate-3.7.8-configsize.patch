@@ -1,0 +1,59 @@
+Index: logrotate.c
+===================================================================
+--- logrotate.c	(revision 275)
++++ logrotate.c	(working copy)
+@@ -1198,7 +1198,7 @@
+     message(MESS_DEBUG, "\nrotating pattern: %s ", log->pattern);
+     switch (log->criterium) {
+     case ROT_DAYS:
+-	message(MESS_DEBUG, "after %d days ", log->threshhold);
++	message(MESS_DEBUG, "after %llu days ", log->threshhold);
+ 	break;
+     case ROT_WEEKLY:
+ 	message(MESS_DEBUG, "weekly ");
+@@ -1210,7 +1210,7 @@
+ 	message(MESS_DEBUG, "yearly ");
+ 	break;
+     case ROT_SIZE:
+-	message(MESS_DEBUG, "%d bytes ", log->threshhold);
++	message(MESS_DEBUG, "%llu bytes ", log->threshhold);
+ 	break;
+     case ROT_FORCE:
+ 	message(MESS_DEBUG, "forced from command line ");
+@@ -1231,7 +1231,7 @@
+ 	message(MESS_DEBUG, "empty log files are not rotated, ");
+ 
+     if (log->minsize) 
+-	message(MESS_DEBUG, "only log files >= %d bytes are rotated, ",	log->minsize);
++	message(MESS_DEBUG, "only log files >= %llu bytes are rotated, ",	log->minsize);
+ 
+     if (log->logAddress) {
+ 	message(MESS_DEBUG, "old logs mailed to %s\n", log->logAddress);
+Index: logrotate.h
+===================================================================
+--- logrotate.h	(revision 275)
++++ logrotate.h	(working copy)
+@@ -33,8 +33,8 @@
+     char *oldDir;
+     enum { ROT_DAYS, ROT_WEEKLY, ROT_MONTHLY, ROT_YEARLY, ROT_SIZE,
+ 	    ROT_FORCE } criterium;
+-    unsigned int threshhold;
+-    unsigned int minsize;
++    unsigned long long threshhold;
++    unsigned long long minsize;
+     int rotateCount;
+     int rotateAge;
+     int logStart;
+Index: config.c
+===================================================================
+--- config.c	(revision 275)
++++ config.c	(working copy)
+@@ -793,7 +793,7 @@
+ 
+ 		*endtag = oldchar, start = endtag;
+ 	    } else if (!strcmp(start, "size") || !strcmp(start, "minsize")) {
+-		unsigned int size = 0;
++		unsigned long long size = 0;
+ 		char *opt = start;
+ 		*endtag = oldchar, start = endtag;
+ 

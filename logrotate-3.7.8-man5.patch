@@ -1,0 +1,34 @@
+diff -up /dev/null logrotate-3.7.8/logrotate.conf.5
+--- /dev/null	2009-09-29 13:43:00.063127317 +0200
++++ logrotate-3.7.8/logrotate.conf.5	2009-09-29 14:46:24.000000000 +0200
+@@ -0,0 +1 @@
++.so man8/logrotate.8
+diff -up logrotate-3.7.8/Makefile.man5 logrotate-3.7.8/Makefile
+--- logrotate-3.7.8/Makefile.man5	2008-05-19 12:25:54.000000000 +0200
++++ logrotate-3.7.8/Makefile	2009-09-29 14:47:01.000000000 +0200
+@@ -3,7 +3,8 @@ OS_NAME = $(shell uname -s)
+ LFS = $(shell echo `getconf LFS_CFLAGS 2>/dev/null`)
+ CFLAGS = -Wall -D_GNU_SOURCE -D$(OS_NAME) -DVERSION=\"$(VERSION)\" $(RPM_OPT_FLAGS) $(LFS)
+ PROG = logrotate
+-MAN = logrotate.8
++MAN = logrotate.8 
++MAN5 = logrotate.conf.5
+ LOADLIBES = -lpopt
+ SVNURL= svn+ssh://svn.fedorahosted.org/svn/logrotate
+ SVNPUBURL = http://svn.fedorahosted.org/svn/logrotate
+@@ -99,6 +100,7 @@ install:
+ 	[ -d $(PREFIX)/$(BINDIR) ] || mkdir -p $(PREFIX)/$(BINDIR)
+ 	[ -d $(PREFIX)/$(MANDIR) ] || mkdir -p $(PREFIX)/$(MANDIR)
+ 	[ -d $(PREFIX)/$(MANDIR)/man8 ] || mkdir -p $(PREFIX)/$(MANDIR)/man8
++	[ -d $(PREFIX)/$(MANDIR)/man5 ] || mkdir -p $(PREFIX)/$(MANDIR)/man5
+ 
+ 	if [ "$(OS_NAME)" = HP-UX ]; then \
+ 	$(INSTALL) $(PROG) $(PREFIX)/$(BINDIR) 0755 bin bin; \
+@@ -106,6 +108,7 @@ install:
+ 	else \
+ 	$(INSTALL) -m 755 $(PROG) $(PREFIX)/$(BINDIR); \
+ 	$(INSTALL) -m 644 $(MAN) $(PREFIX)/$(MANDIR)/man`echo $(MAN) | sed "s/.*\.//"`/$(MAN); \
++	$(INSTALL) -m 644 $(MAN5) $(PREFIX)/$(MANDIR)/man`echo $(MAN5) | sed "s/.*\.//"`/$(MAN5); \
+ 	fi
+ 
+ co:
