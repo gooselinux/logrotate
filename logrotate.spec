@@ -1,7 +1,7 @@
 Summary: Rotates, compresses, removes and mails system log files
 Name: logrotate
 Version: 3.7.8
-Release: 12%{?dist}
+Release: 12%{?dist}.1
 License: GPL+
 URL: https://fedorahosted.org/logrotate/
 Group: System Environment/Base
@@ -16,6 +16,9 @@ Patch7: logrotate-3.7.8-dont-remove-log.patch
 Patch8: logrotate-3.7.8-scripts-args.patch
 Patch9: logrotate-3.7.8-scripts-man.patch
 Patch10: logrotate-3.7.8-handle-rename-error.patch
+Patch11: logrotate-3.7.9-shred.patch
+Patch12: logrotate-3.7.9-statefile.patch
+Patch13: logrotate-3.7.9-atomic-create.patch
 
 Requires: coreutils >= 5.92 libsepol libselinux popt
 BuildRequires: libselinux-devel popt-devel
@@ -44,6 +47,9 @@ log files on your system.
 %patch8 -b .scripts-args
 %patch9 -b .scripts-man
 %patch10 -b .handle-rename-error
+%patch11 -p1 -b .shred
+%patch12 -b .statefile
+%patch13 -p1 -b .atomic-log-create
 
 %build
 make %{?_smp_mflags} RPM_OPT_FLAGS="$RPM_OPT_FLAGS" WITH_SELINUX=yes
@@ -74,6 +80,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(0644, root, root) %verify(not size md5 mtime) %config(noreplace) %{_localstatedir}/lib/logrotate.status
 
 %changelog
+* Thu Mar 17 2011 Jan Kaluza <jkaluza@redhat.com> 3.7.8-12.1
+- fix #688518 - fixed CVE-2011-1154, CVE-2011-1155
+  and CVE-2011-1098
+
 * Thu Jun 24 2010 Jan Kaluza <jkaluza@redhat.com> 3.7.8-12
 - fix #604073 - stop rotation if there is an error when
   renaming old logs
